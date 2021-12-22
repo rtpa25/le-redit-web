@@ -1,0 +1,8 @@
+# @format
+
+query Me {
+  me {
+    username
+    id
+  }
+}

@@ -12,6 +12,7 @@ import {
 type InputFieldProps = InputHTMLAttributes<HTMLInputElement> & {
   label: string;
   name: string;
+  kind: string;
   placeholder: string;
 };
 
@@ -23,7 +24,12 @@ const InputField: React.FC<InputFieldProps> = (props) => {
     <div>
       <FormControl isInvalid={!!error}>
         <FormLabel htmlFor={field.name}>{props.label}</FormLabel>
-        <Input {...field} id={field.name} placeholder={props.placeholder} />
+        <Input
+          {...field}
+          id={field.name}
+          placeholder={props.placeholder}
+          type={props.kind}
+        />
         {error ? <FormErrorMessage>{error}</FormErrorMessage> : null}
       </FormControl>
     </div>
