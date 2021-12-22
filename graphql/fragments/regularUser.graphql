@@ -1,0 +1,6 @@
+# @format
+
+fragment RegularUser on User {
+  id
+  username
+}
