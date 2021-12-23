@@ -1,0 +1,10 @@
+# @format
+
+fragment RegularUserResponse on AuthOutput {
+  errors {
+    ...RegularError
+  }
+  user {
+    ...RegularUser
+  }
+}

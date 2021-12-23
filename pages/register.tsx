@@ -1,12 +1,14 @@
 /** @format */
 
 import { Formik, Form } from 'formik';
-import { Box, Button } from '@chakra-ui/react';
+import { Box, Button, Flex, Link } from '@chakra-ui/react';
 import Wrapper from '../components/Wrapper';
 import InputField from '../components/InputField';
 import { FieldError, useRegisterMutation } from '../generated/graphql';
 import { toErrorMar } from '../utils/toErrorMap';
 import { useRouter } from 'next/router';
+import { withUrqlClient } from 'next-urql';
+import { createUrqlClient } from '../utils/createUrqlCleint';
 
 interface RegisterProps {}
 
@@ -16,7 +18,7 @@ const Register: React.FC<RegisterProps> = () => {
   return (
     <Wrapper>
       <Formik
-        initialValues={{ username: '', password: '' }}
+        initialValues={{ username: '', password: '', email: '' }}
         onSubmit={async (value, { setErrors }) => {
           const response = await register(value);
           if (response.data?.register?.errors) {
@@ -37,6 +39,15 @@ const Register: React.FC<RegisterProps> = () => {
             />
             <Box mt={4}>
               <InputField
+                name={'email'}
+                placeholder={'email'}
+                label={'email'}
+                type={'email'}
+                kind={'email'}
+              />
+            </Box>
+            <Box mt={4}>
+              <InputField
                 name={'password'}
                 placeholder={'password'}
                 label={'Password'}
@@ -44,13 +55,16 @@ const Register: React.FC<RegisterProps> = () => {
                 kind={'password'}
               />
             </Box>
-            <Button
-              mt={4}
-              type='submit'
-              isLoading={isSubmitting}
-              colorScheme='teal'>
-              Register
-            </Button>
+            <Flex alignItems={'end'} justifyContent={'space-between'}>
+              <Button
+                mt={4}
+                type='submit'
+                isLoading={isSubmitting}
+                colorScheme='teal'>
+                Register
+              </Button>
+              <Link href='/login'>Already a user sign in</Link>
+            </Flex>
           </Form>
         )}
       </Formik>
@@ -58,4 +72,4 @@ const Register: React.FC<RegisterProps> = () => {
   );
 };
 
-export default Register;
+export default withUrqlClient(createUrqlClient)(Register);

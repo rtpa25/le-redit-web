@@ -1,0 +1,9 @@
+# @format
+
+query Posts {
+  posts {
+    id
+    title
+    createdAt
+  }
+}
