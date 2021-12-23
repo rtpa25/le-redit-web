@@ -1,0 +1,12 @@
+# @format
+
+mutation CreatePost($title: String!, $text: String!) {
+  postCreate(options: { title: $title, text: $text }) {
+    creatorId
+    createdAt
+    id
+    text
+    title
+    points
+  }
+}

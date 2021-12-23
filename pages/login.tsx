@@ -16,6 +16,7 @@ interface LoginProps {}
 const Login: React.FC<LoginProps> = () => {
   const [{}, login] = useLoginMutation();
   const router = useRouter();
+
   return (
     <Wrapper>
       <Formik
@@ -25,7 +26,11 @@ const Login: React.FC<LoginProps> = () => {
           if (response.data?.login?.errors) {
             setErrors(toErrorMar(response.data.login.errors as FieldError[]));
           } else if (response.data?.login?.user) {
-            router.push('/');
+            if (typeof router.query.next === 'string') {
+              router.push(router.query.next);
+            } else {
+              router.push('/');
+            }
           }
         }}>
         {({ isSubmitting }) => (
