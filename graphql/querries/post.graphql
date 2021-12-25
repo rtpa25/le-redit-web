@@ -1,9 +1,14 @@
 # @format
 
-query Posts {
-  posts {
-    id
-    title
-    createdAt
+query Posts($limit: Int!, $cursor: Int) {
+  posts(cursor: $cursor, limit: $limit) {
+    posts {
+      id
+      title
+      createdAt
+      text
+      textSnippet
+    }
+    hasMorePosts
   }
 }

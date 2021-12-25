@@ -81,6 +81,12 @@ export type MutationRegisterArgs = {
   options: SignupAuthInput;
 };
 
+export type PaginatedPosts = {
+  __typename?: 'PaginatedPosts';
+  hasMorePosts: Scalars['Boolean'];
+  posts?: Maybe<Array<Maybe<Post>>>;
+};
+
 export type Post = {
   __typename?: 'Post';
   createdAt: Scalars['String'];
@@ -88,6 +94,7 @@ export type Post = {
   id: Scalars['ID'];
   points: Scalars['Int'];
   text: Scalars['String'];
+  textSnippet: Scalars['String'];
   title: Scalars['String'];
   updatedAt: Scalars['String'];
 };
@@ -102,11 +109,16 @@ export type Query = {
   hello: Scalars['String'];
   me?: Maybe<User>;
   post?: Maybe<Post>;
-  posts?: Maybe<Array<Maybe<Post>>>;
+  posts?: Maybe<PaginatedPosts>;
 };
 
 export type QueryPostArgs = {
   id: Scalars['ID'];
+};
+
+export type QueryPostsArgs = {
+  cursor?: InputMaybe<Scalars['Int']>;
+  limit: Scalars['Int'];
 };
 
 export type SigninAuthInput = {
@@ -304,16 +316,33 @@ export type MeQuery = {
     | undefined;
 };
 
-export type PostsQueryVariables = Exact<{ [key: string]: never }>;
+export type PostsQueryVariables = Exact<{
+  limit: Scalars['Int'];
+  cursor?: InputMaybe<Scalars['Int']>;
+}>;
 
 export type PostsQuery = {
   __typename?: 'Query';
   posts?:
-    | Array<
-        | { __typename?: 'Post'; id: string; title: string; createdAt: string }
-        | null
-        | undefined
-      >
+    | {
+        __typename?: 'PaginatedPosts';
+        hasMorePosts: boolean;
+        posts?:
+          | Array<
+              | {
+                  __typename?: 'Post';
+                  id: string;
+                  title: string;
+                  createdAt: string;
+                  text: string;
+                  textSnippet: string;
+                }
+              | null
+              | undefined
+            >
+          | null
+          | undefined;
+      }
     | null
     | undefined;
 };
@@ -442,11 +471,16 @@ export function useMeQuery(
   return Urql.useQuery<MeQuery>({ query: MeDocument, ...options });
 }
 export const PostsDocument = gql`
-  query Posts {
-    posts {
-      id
-      title
-      createdAt
+  query Posts($limit: Int!, $cursor: Int) {
+    posts(cursor: $cursor, limit: $limit) {
+      posts {
+        id
+        title
+        createdAt
+        text
+        textSnippet
+      }
+      hasMorePosts
     }
   }
 `;

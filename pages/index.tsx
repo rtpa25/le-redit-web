@@ -6,22 +6,69 @@ import { createUrqlClient } from '../utils/createUrqlCleint';
 import { usePostsQuery } from '../generated/graphql';
 import Layout from '../components/Layout';
 import NextLink from 'next/link';
-import { Link } from '@chakra-ui/react';
+import { Box, Button, Flex, Heading, Stack, Text } from '@chakra-ui/react';
+import { useState } from 'react';
 
 const Home: NextPage = () => {
-  const [{ data }] = usePostsQuery();
+  interface Var {
+    limit: number;
+    cursor: number | undefined;
+  }
+
+  const [vars, setVars] = useState<Var>({ limit: 10, cursor: undefined });
+  const [{ data, fetching }] = usePostsQuery({
+    variables: vars,
+  });
+  if (!fetching && !data) {
+    return <div>You got no opost for some reason</div>;
+  }
+
   return (
-    <Layout>
-      <NextLink href={'/create-post'}>
-        <Link>Create Post</Link>
-      </NextLink>
-      {!data ? (
+    <Layout variant='regular'>
+      <Flex justifyContent={'space-between'} alignItems={'center'} mb={10}>
+        <Heading>LiReddit</Heading>
+        <NextLink href={'/create-post'}>
+          <Button
+            background={'teal'}
+            color={'white'}
+            _hover={{
+              background: 'black',
+              color: 'rgb(0, 233, 0)',
+            }}>
+            Create Post
+          </Button>
+        </NextLink>
+      </Flex>
+      {!data && fetching ? (
         <div>Loading....</div>
       ) : (
-        data.posts?.map((post) => {
-          return <div key={post?.id}>{post?.title}</div>;
-        })
+        <Stack spacing={8}>
+          {data!.posts?.posts?.map((post) => (
+            <Box key={post?.id} p={5} shadow={'md'} borderWidth={'1px'}>
+              <Heading fontSize={'xl'}>{post?.title}</Heading>
+              <Text mt={4}>{post?.textSnippet}</Text>
+            </Box>
+          ))}
+        </Stack>
       )}
+      {data && data.posts?.hasMorePosts ? (
+        <Flex justifyContent={'center'}>
+          <Button
+            onClick={() => {
+              setVars({
+                limit: vars.limit,
+                cursor: parseInt(
+                  data!.posts!.posts![(data.posts?.posts!.length as number) - 1]
+                    ?.id as string
+                ),
+              });
+            }}
+            mt={10}
+            mb={10}>
+            Load More
+          </Button>
+        </Flex>
+      ) : null}
     </Layout>
   );
 };
