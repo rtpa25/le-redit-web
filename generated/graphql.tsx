@@ -50,6 +50,7 @@ export type Mutation = {
   postDelete: Scalars['Boolean'];
   postUpdate?: Maybe<Post>;
   register?: Maybe<AuthOutput>;
+  vote?: Maybe<Scalars['Boolean']>;
 };
 
 export type MutationChangePasswordArgs = {
@@ -81,6 +82,10 @@ export type MutationRegisterArgs = {
   options: SignupAuthInput;
 };
 
+export type MutationVoteArgs = {
+  options: VoteInput;
+};
+
 export type PaginatedPosts = {
   __typename?: 'PaginatedPosts';
   hasMorePosts: Scalars['Boolean'];
@@ -90,13 +95,15 @@ export type PaginatedPosts = {
 export type Post = {
   __typename?: 'Post';
   createdAt: Scalars['String'];
+  creator: User;
   creatorId: Scalars['ID'];
   id: Scalars['ID'];
-  points: Scalars['Int'];
+  points?: Maybe<Scalars['Int']>;
   text: Scalars['String'];
   textSnippet: Scalars['String'];
   title: Scalars['String'];
   updatedAt: Scalars['String'];
+  upvote?: Maybe<Array<Upvote>>;
 };
 
 export type PostInput = {
@@ -132,6 +139,15 @@ export type SignupAuthInput = {
   username: Scalars['String'];
 };
 
+export type Upvote = {
+  __typename?: 'Upvote';
+  createdAt: Scalars['String'];
+  id: Scalars['ID'];
+  postId: Scalars['ID'];
+  userId: Scalars['ID'];
+  value: Scalars['Int'];
+};
+
 export type User = {
   __typename?: 'User';
   createdAt: Scalars['String'];
@@ -140,6 +156,11 @@ export type User = {
   posts?: Maybe<Array<Post>>;
   updatedAt: Scalars['String'];
   username: Scalars['String'];
+};
+
+export type VoteInput = {
+  postId: Scalars['ID'];
+  value: Scalars['Int'];
 };
 
 export type RegularErrorFragment = {
@@ -221,7 +242,15 @@ export type CreatePostMutation = {
         id: string;
         text: string;
         title: string;
-        points: number;
+        upvote?:
+          | Array<{
+              __typename?: 'Upvote';
+              value: number;
+              userId: string;
+              postId: string;
+            }>
+          | null
+          | undefined;
       }
     | null
     | undefined;
@@ -306,6 +335,16 @@ export type RegisterMutation = {
     | undefined;
 };
 
+export type VoteMutationVariables = Exact<{
+  postId: Scalars['ID'];
+  value: Scalars['Int'];
+}>;
+
+export type VoteMutation = {
+  __typename?: 'Mutation';
+  vote?: boolean | null | undefined;
+};
+
 export type MeQueryVariables = Exact<{ [key: string]: never }>;
 
 export type MeQuery = {
@@ -334,8 +373,14 @@ export type PostsQuery = {
                   id: string;
                   title: string;
                   createdAt: string;
-                  text: string;
                   textSnippet: string;
+                  creatorId: string;
+                  points?: number | null | undefined;
+                  creator: {
+                    __typename?: 'User';
+                    id: string;
+                    username: string;
+                  };
                 }
               | null
               | undefined
@@ -395,7 +440,11 @@ export const CreatePostDocument = gql`
       id
       text
       title
-      points
+      upvote {
+        value
+        userId
+        postId
+      }
     }
   }
 `;
@@ -456,6 +505,15 @@ export function useRegisterMutation() {
     RegisterDocument
   );
 }
+export const VoteDocument = gql`
+  mutation Vote($postId: ID!, $value: Int!) {
+    vote(options: { postId: $postId, value: $value })
+  }
+`;
+
+export function useVoteMutation() {
+  return Urql.useMutation<VoteMutation, VoteMutationVariables>(VoteDocument);
+}
 export const MeDocument = gql`
   query Me {
     me {
@@ -477,8 +535,13 @@ export const PostsDocument = gql`
         id
         title
         createdAt
-        text
         textSnippet
+        creatorId
+        creator {
+          id
+          username
+        }
+        points
       }
       hasMorePosts
     }

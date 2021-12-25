@@ -1,0 +1,5 @@
+# @format
+
+mutation Vote($postId: ID!, $value: Int!) {
+  vote(options: { postId: $postId, value: $value })
+}

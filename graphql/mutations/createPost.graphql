@@ -7,6 +7,10 @@ mutation CreatePost($title: String!, $text: String!) {
     id
     text
     title
-    points
+    upvote {
+      value
+      userId
+      postId
+    }
   }
 }

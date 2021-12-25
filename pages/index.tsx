@@ -6,8 +6,9 @@ import { createUrqlClient } from '../utils/createUrqlCleint';
 import { usePostsQuery } from '../generated/graphql';
 import Layout from '../components/Layout';
 import NextLink from 'next/link';
-import { Box, Button, Flex, Heading, Stack, Text } from '@chakra-ui/react';
+import { Button, Flex, Heading, Stack } from '@chakra-ui/react';
 import { useState } from 'react';
+import Post from '../components/Post';
 
 const Home: NextPage = () => {
   interface Var {
@@ -44,10 +45,14 @@ const Home: NextPage = () => {
       ) : (
         <Stack spacing={8}>
           {data!.posts?.posts?.map((post) => (
-            <Box key={post?.id} p={5} shadow={'md'} borderWidth={'1px'}>
-              <Heading fontSize={'xl'}>{post?.title}</Heading>
-              <Text mt={4}>{post?.textSnippet}</Text>
-            </Box>
+            <Post
+              key={post?.id}
+              title={post!.title}
+              textSnippet={post?.textSnippet as string}
+              creatorUsername={post?.creator.username as string}
+              points={post?.points as number}
+              id={post?.id as string}
+            />
           ))}
         </Stack>
       )}
