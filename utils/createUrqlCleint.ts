@@ -14,6 +14,7 @@ import {
   LogoutMutation,
   MeDocument,
   MeQuery,
+  PostDeleteMutationVariables,
   RegisterMutation,
   VoteMutationVariables,
 } from '../generated/graphql';
@@ -102,6 +103,12 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
         },
         updates: {
           Mutation: {
+            postDelete: (_result, args, cache, info) => {
+              cache.invalidate({
+                __typename: 'Post',
+                id: (args as PostDeleteMutationVariables).id,
+              });
+            },
             vote: (_result, args, cache, info) => {
               const { options } = args;
               const { postId, value } = options as VoteMutationVariables;
@@ -134,8 +141,10 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
               }
             },
             unVote: (_result, args, cache, info) => {
-              const { options } = args;
-              const { postId } = options as VoteMutationVariables;
+              const { postId } = args;
+              console.log(postId);
+
+              // const { postId } = options as VoteMutationVariables;
               const data = cache.readFragment(
                 gql`
                   fragment _ on Post {
@@ -146,7 +155,18 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
                 `,
                 { id: postId } as any
               );
-              console.log(data);
+              if (data) {
+                const newPoints = data.points - data.voteStatus;
+                cache.writeFragment(
+                  gql`
+                    fragment __ on Post {
+                      points
+                      voteStatus
+                    }
+                  `,
+                  { id: postId, points: newPoints, voteStatus: null } as any
+                );
+              }
             },
             postCreate: (_result, args, cache, info) => {
               const allFields = cache.inspectFields('Query'); //this will bring all the Queries in the cache

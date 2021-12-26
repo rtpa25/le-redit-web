@@ -1,0 +1,20 @@
+# @format
+
+query Post($id: ID!) {
+  post(id: $id) {
+    title
+    text
+    createdAt
+    updatedAt
+    upvote {
+      userId
+      value
+    }
+    creator {
+      username
+      id
+    }
+    voteStatus
+    points
+  }
+}

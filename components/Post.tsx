@@ -2,6 +2,7 @@
 
 import { TriangleUpIcon, TriangleDownIcon } from '@chakra-ui/icons';
 import { Box, Button, Flex, Heading, IconButton, Text } from '@chakra-ui/react';
+import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { useUnvoteMutation, useVoteMutation } from '../generated/graphql';
 
@@ -30,9 +31,15 @@ const Post: React.FC<PostProps> = ({
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [{}, vote] = useVoteMutation();
   const [{}, unvote] = useUnvoteMutation();
+  const router = useRouter();
 
   return (
-    <Box p={5} shadow={'md'} borderWidth={'1px'}>
+    <Box
+      p={5}
+      shadow={'md'}
+      borderWidth={'1px'}
+      boxShadow={'lg'}
+      borderRadius={'md'}>
       <Flex>
         <Flex
           flexDirection={'column'}
@@ -85,9 +92,15 @@ const Post: React.FC<PostProps> = ({
         </Flex>
         <Box flex={15}>
           <Flex justifyContent={'space-between'}>
-            <Heading fontSize={'xl'} cursor={'pointer'}>
+            <Heading
+              fontSize={'xl'}
+              cursor={'pointer'}
+              onClick={() => {
+                router.push(`/post/${id}`);
+              }}>
               {title}
             </Heading>
+
             <Button
               isLoading={isLoading}
               onClick={async () => {

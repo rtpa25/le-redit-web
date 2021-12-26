@@ -3,10 +3,10 @@
 import type { NextPage } from 'next';
 import { withUrqlClient } from 'next-urql';
 import { createUrqlClient } from '../utils/createUrqlCleint';
-import { usePostsQuery } from '../generated/graphql';
+import { useMeQuery, usePostsQuery } from '../generated/graphql';
 import Layout from '../components/Layout';
 import NextLink from 'next/link';
-import { Button, Flex, Heading, Stack } from '@chakra-ui/react';
+import { Button, Flex, Text, Stack } from '@chakra-ui/react';
 import { useState } from 'react';
 import Post from '../components/Post';
 
@@ -20,6 +20,7 @@ const Home: NextPage = () => {
   const [{ data, fetching }] = usePostsQuery({
     variables: vars,
   });
+  const [{ data: _data, fetching: _fetching }] = useMeQuery();
   if (!fetching && !data) {
     return <div>You got no opost for some reason</div>;
   }
@@ -27,7 +28,17 @@ const Home: NextPage = () => {
   return (
     <Layout variant='regular'>
       <Flex justifyContent={'space-between'} alignItems={'center'} mb={10}>
-        <Heading>LiReddit</Heading>
+        <Text
+          bgGradient='linear(to-l,  #00ff55,#000000)'
+          bgClip='text'
+          fontSize='6xl'
+          fontWeight='bold'
+          cursor={'pointer'}
+          onClick={() => {
+            window.location.reload();
+          }}>
+          LiReddit
+        </Text>
         <NextLink href={'/create-post'}>
           <Button
             background={'teal'}
@@ -44,19 +55,21 @@ const Home: NextPage = () => {
         <div>Loading....</div>
       ) : (
         <Stack spacing={8}>
-          {data!.posts?.posts?.map((post) => (
-            <Post
-              key={post?.id}
-              title={post!.title}
-              textSnippet={post?.textSnippet as string}
-              creatorUsername={post?.creator.username as string}
-              points={post?.points as number}
-              id={post?.id as string}
-              voteStatus={
-                post?.voteStatus !== null ? (post?.voteStatus as number) : 0
-              }
-            />
-          ))}
+          {data!.posts?.posts?.map((post) =>
+            !post ? null : (
+              <Post
+                key={post?.id}
+                title={post!.title}
+                textSnippet={post?.textSnippet as string}
+                creatorUsername={post?.creator.username as string}
+                points={post?.points as number}
+                id={post?.id as string}
+                voteStatus={
+                  post?.voteStatus !== null ? (post?.voteStatus as number) : 0
+                }
+              />
+            )
+          )}
         </Stack>
       )}
       {data && data.posts?.hasMorePosts ? (
