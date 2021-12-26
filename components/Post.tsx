@@ -1,9 +1,9 @@
 /** @format */
 
 import { TriangleUpIcon, TriangleDownIcon } from '@chakra-ui/icons';
-import { Box, Flex, Heading, IconButton, Text } from '@chakra-ui/react';
+import { Box, Button, Flex, Heading, IconButton, Text } from '@chakra-ui/react';
 import React, { useState } from 'react';
-import { useVoteMutation } from '../generated/graphql';
+import { useUnvoteMutation, useVoteMutation } from '../generated/graphql';
 
 interface PostProps {
   title: string;
@@ -11,6 +11,7 @@ interface PostProps {
   creatorUsername: string;
   points: number;
   id: string;
+  voteStatus: number | null;
 }
 
 const Post: React.FC<PostProps> = ({
@@ -19,12 +20,16 @@ const Post: React.FC<PostProps> = ({
   creatorUsername,
   points,
   id,
+  voteStatus,
 }) => {
+  //loading state for voting
   const [loadingState, setLoadingState] = useState<
     'upLoading' | 'downLoading' | 'notLoading'
   >('notLoading');
+  //loading state for unvoting
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [{}, vote] = useVoteMutation();
-  console.log(id, points);
+  const [{}, unvote] = useUnvoteMutation();
 
   return (
     <Box p={5} shadow={'md'} borderWidth={'1px'}>
@@ -42,10 +47,14 @@ const Post: React.FC<PostProps> = ({
             h={7}
             isLoading={loadingState === 'upLoading'}
             color={'green'}
+            background={voteStatus === 1 ? 'green.200' : undefined}
             cursor={'pointer'}
             onClick={async () => {
+              if (voteStatus === 1) {
+                return;
+              }
               setLoadingState('upLoading');
-              vote({
+              await vote({
                 postId: id,
                 value: 1,
               });
@@ -58,11 +67,15 @@ const Post: React.FC<PostProps> = ({
             icon={<TriangleDownIcon />}
             color={'red'}
             isLoading={loadingState === 'downLoading'}
+            background={voteStatus === -1 ? 'red.200' : undefined}
             h={7}
             cursor={'pointer'}
             onClick={async () => {
+              if (voteStatus === -1) {
+                return;
+              }
               setLoadingState('upLoading');
-              vote({
+              await vote({
                 postId: id,
                 value: -1,
               });
@@ -71,9 +84,23 @@ const Post: React.FC<PostProps> = ({
           />
         </Flex>
         <Box flex={15}>
-          <Heading fontSize={'xl'} cursor={'pointer'}>
-            {title}
-          </Heading>
+          <Flex justifyContent={'space-between'}>
+            <Heading fontSize={'xl'} cursor={'pointer'}>
+              {title}
+            </Heading>
+            <Button
+              isLoading={isLoading}
+              onClick={async () => {
+                setIsLoading(true);
+                await unvote({
+                  postId: id,
+                });
+                setIsLoading(false);
+              }}>
+              Unvote
+            </Button>
+          </Flex>
+
           <Flex justifyContent={'space-between'}>
             <Text cursor={'pointer'} mt={4}>
               {textSnippet}

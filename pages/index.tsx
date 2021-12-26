@@ -52,6 +52,9 @@ const Home: NextPage = () => {
               creatorUsername={post?.creator.username as string}
               points={post?.points as number}
               id={post?.id as string}
+              voteStatus={
+                post?.voteStatus !== null ? (post?.voteStatus as number) : 0
+              }
             />
           ))}
         </Stack>
