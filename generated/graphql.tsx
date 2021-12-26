@@ -76,7 +76,8 @@ export type MutationPostDeleteArgs = {
 
 export type MutationPostUpdateArgs = {
   id: Scalars['ID'];
-  title: Scalars['String'];
+  text?: InputMaybe<Scalars['String']>;
+  title?: InputMaybe<Scalars['String']>;
 };
 
 export type MutationRegisterArgs = {
@@ -371,6 +372,26 @@ export type UnvoteMutation = {
   unVote?: boolean | null | undefined;
 };
 
+export type UpdatePostMutationVariables = Exact<{
+  id: Scalars['ID'];
+  title?: InputMaybe<Scalars['String']>;
+  text?: InputMaybe<Scalars['String']>;
+}>;
+
+export type UpdatePostMutation = {
+  __typename?: 'Mutation';
+  postUpdate?:
+    | {
+        __typename?: 'Post';
+        id: string;
+        title: string;
+        text: string;
+        textSnippet: string;
+      }
+    | null
+    | undefined;
+};
+
 export type VoteMutationVariables = Exact<{
   postId: Scalars['ID'];
   value: Scalars['Int'];
@@ -602,6 +623,22 @@ export const UnvoteDocument = gql`
 export function useUnvoteMutation() {
   return Urql.useMutation<UnvoteMutation, UnvoteMutationVariables>(
     UnvoteDocument
+  );
+}
+export const UpdatePostDocument = gql`
+  mutation UpdatePost($id: ID!, $title: String, $text: String) {
+    postUpdate(id: $id, title: $title, text: $text) {
+      id
+      title
+      text
+      textSnippet
+    }
+  }
+`;
+
+export function useUpdatePostMutation() {
+  return Urql.useMutation<UpdatePostMutation, UpdatePostMutationVariables>(
+    UpdatePostDocument
   );
 }
 export const VoteDocument = gql`

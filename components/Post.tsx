@@ -114,7 +114,11 @@ const Post: React.FC<PostProps> = ({
             </Button>
           </Flex>
 
-          <Flex justifyContent={'space-between'}>
+          <Flex
+            justifyContent={'space-between'}
+            onClick={() => {
+              router.push(`/post/${id}`);
+            }}>
             <Text cursor={'pointer'} mt={4}>
               {textSnippet}
             </Text>

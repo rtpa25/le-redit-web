@@ -10,15 +10,21 @@ import {
   usePostQuery,
 } from '../../generated/graphql';
 import Layout from '../../components/Layout';
-import { Box, Button, Flex, Heading, IconButton } from '@chakra-ui/react';
-import { TriangleUpIcon, TriangleDownIcon, DeleteIcon } from '@chakra-ui/icons';
+import { Box, Flex, Heading, IconButton } from '@chakra-ui/react';
+import {
+  TriangleUpIcon,
+  TriangleDownIcon,
+  DeleteIcon,
+  EditIcon,
+} from '@chakra-ui/icons';
 
 interface PostPageProps {}
 
 const PostPage: React.FC<PostPageProps> = () => {
   const router = useRouter();
-  const intId = typeof router.query.id === 'string' ? router.query.id : -1;
   const [{ data: _data, fetching: _fetching }] = useMeQuery();
+  const intId = typeof router.query.id === 'string' ? router.query.id : -1;
+
   const [{ data, fetching }] = usePostQuery({
     pause: intId === -1,
     variables: {
@@ -54,7 +60,17 @@ const PostPage: React.FC<PostPageProps> = () => {
                 {data.post.title}
               </Heading>
               {_data?.me?.username === data.post.creator.username && (
-                <Button>Edit Post</Button>
+                <IconButton
+                  aria-label='Edit Post'
+                  color='teal'
+                  icon={<EditIcon />}
+                  onClick={() => {
+                    router.replace(`
+                      /post/edit/${router.query.id}
+                    `);
+                  }}>
+                  Edit Post
+                </IconButton>
               )}
             </Flex>
             <Flex justifyContent={'space-between'}>
