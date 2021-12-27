@@ -46,8 +46,9 @@ const Navbar: React.FC<NavbarProps> = () => {
           color={'white'}
           variant={'link'}
           isLoading={logoutFethcing}
-          onClick={() => {
-            logout();
+          onClick={async () => {
+            await logout();
+            window.location.reload();
           }}>
           logout
         </Button>

@@ -30,9 +30,9 @@ const Post: React.FC<PostProps> = ({
   //loading state for unvoting
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [{}, vote] = useVoteMutation();
-  const [{}, unvote] = useUnvoteMutation();
-  const router = useRouter();
 
+  const router = useRouter();
+  const [{}, unvote] = useUnvoteMutation();
   return (
     <Box
       p={5}

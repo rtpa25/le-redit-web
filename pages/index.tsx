@@ -17,12 +17,12 @@ const Home: NextPage = () => {
   }
 
   const [vars, setVars] = useState<Var>({ limit: 10, cursor: undefined });
-  const [{ data, fetching }] = usePostsQuery({
+  const [{ data, fetching, error }] = usePostsQuery({
     variables: vars,
   });
   const [{ data: _data, fetching: _fetching }] = useMeQuery();
   if (!fetching && !data) {
-    return <div>You got no opost for some reason</div>;
+    return <div>{error?.message}</div>;
   }
 
   return (

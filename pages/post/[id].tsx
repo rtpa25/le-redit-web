@@ -1,13 +1,14 @@
 /** @format */
 
 import { withUrqlClient } from 'next-urql';
-import React from 'react';
+import React, { useState } from 'react';
 import { createUrqlClient } from '../../utils/createUrqlCleint';
 import { useRouter } from 'next/router';
 import {
   useMeQuery,
   usePostDeleteMutation,
   usePostQuery,
+  useVoteMutation,
 } from '../../generated/graphql';
 import Layout from '../../components/Layout';
 import { Box, Flex, Heading, IconButton } from '@chakra-ui/react';
@@ -24,7 +25,12 @@ const PostPage: React.FC<PostPageProps> = () => {
   const router = useRouter();
   const [{ data: _data, fetching: _fetching }] = useMeQuery();
   const intId = typeof router.query.id === 'string' ? router.query.id : -1;
+  //loading state for voting
+  const [loadingState, setLoadingState] = useState<
+    'upLoading' | 'downLoading' | 'notLoading'
+  >('notLoading');
 
+  const [{}, vote] = useVoteMutation();
   const [{ data, fetching }] = usePostQuery({
     pause: intId === -1,
     variables: {
@@ -92,16 +98,44 @@ const PostPage: React.FC<PostPageProps> = () => {
                 aria-label='Search database'
                 icon={<TriangleUpIcon />}
                 h={7}
+                isLoading={loadingState === 'upLoading'}
                 color={'green'}
+                background={
+                  data.post.voteStatus === 1 ? 'green.200' : undefined
+                }
                 cursor={'pointer'}
+                onClick={async () => {
+                  if (data?.post?.voteStatus === 1) {
+                    return;
+                  }
+                  setLoadingState('upLoading');
+                  await vote({
+                    postId: router.query.id as string,
+                    value: 1,
+                  });
+                  setLoadingState('notLoading');
+                }}
               />
               <Box>{data.post.points}</Box>
               <IconButton
                 aria-label='Search database'
                 icon={<TriangleDownIcon />}
                 color={'red'}
+                isLoading={loadingState === 'downLoading'}
+                background={data.post.voteStatus === -1 ? 'red.200' : undefined}
                 h={7}
                 cursor={'pointer'}
+                onClick={async () => {
+                  if (data?.post?.voteStatus === -1) {
+                    return;
+                  }
+                  setLoadingState('upLoading');
+                  await vote({
+                    postId: router.query.id as string,
+                    value: -1,
+                  });
+                  setLoadingState('notLoading');
+                }}
               />
             </Flex>
             {_data?.me?.username === data.post.creator.username && (
