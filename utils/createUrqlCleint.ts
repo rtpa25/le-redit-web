@@ -89,7 +89,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
   }
 
   return {
-    url: 'http://api.etherapp.social/graphql',
+    url: 'http://api.etherapp.social/graphql', //changed the domain
     fetchOptions: {
       credentials: 'include',
       headers: cookie
