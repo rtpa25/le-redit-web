@@ -37,7 +37,7 @@ const Home: NextPage = () => {
           onClick={() => {
             window.location.reload();
           }}>
-          LiReddit
+          Ether
         </Text>
         <NextLink href={'/create-post'}>
           <Button

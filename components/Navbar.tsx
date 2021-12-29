@@ -73,7 +73,7 @@ const Navbar: React.FC<NavbarProps> = () => {
               fontSize='3xl'
               fontWeight='bold'
               cursor={'pointer'}>
-              LiReddit
+              Ether
             </Text>
           </Link>
         </NextLink>
