@@ -7,7 +7,7 @@ import { NextPageContext } from 'next';
 
 const createClient = (ctx: NextPageContext) =>
   new ApolloClient({
-    uri: 'http://localhost:4000/graphql',
+    uri: 'https://api.etherapp.social/graphql',
     credentials: 'include',
     headers: {
       cookie:
