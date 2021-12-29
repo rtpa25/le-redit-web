@@ -16,9 +16,7 @@ import {
 import { toErrorMar } from '../utils/toErrorMap';
 import { createWithApollo } from '../utils/withApollo';
 
-interface LoginProps {}
-
-const Login: NextPage<LoginProps> = () => {
+const Login = () => {
   const [login] = useLoginMutation();
   const router = useRouter();
 

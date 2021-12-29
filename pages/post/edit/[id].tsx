@@ -2,7 +2,6 @@
 
 import { Box, Button, Flex, Link } from '@chakra-ui/react';
 import { Form, Formik } from 'formik';
-import { NextPage } from 'next';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import React from 'react';
@@ -15,9 +14,7 @@ import {
 import { useIsAuth } from '../../../utils/useIsAuth';
 import { createWithApollo } from '../../../utils/withApollo';
 
-interface EditPostProps {}
-
-const EditPost: NextPage<EditPostProps> = ({}) => {
+const EditPost = ({}) => {
   const router = useRouter();
   useIsAuth();
   const intId = typeof router.query.id === 'string' ? router.query.id : -1;

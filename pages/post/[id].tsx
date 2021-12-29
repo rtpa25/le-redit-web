@@ -7,7 +7,6 @@ import {
   TriangleUpIcon,
 } from '@chakra-ui/icons';
 import { Box, Flex, Heading, IconButton } from '@chakra-ui/react';
-import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import Layout from '../../components/Layout';
@@ -19,9 +18,7 @@ import {
 } from '../../generated/graphql';
 import { createWithApollo } from '../../utils/withApollo';
 
-interface PostPageProps {}
-
-const PostPage: NextPage<PostPageProps> = () => {
+const PostPage = () => {
   const router = useRouter();
 
   const { data: _data, loading: _fetching } = useMeQuery();

@@ -2,6 +2,7 @@
 
 import { Box, Button, Flex, Link } from '@chakra-ui/react';
 import { Form, Formik } from 'formik';
+import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import InputField from '../components/InputField';
 import Wrapper from '../components/Wrapper';
@@ -14,9 +15,7 @@ import {
 import { toErrorMar } from '../utils/toErrorMap';
 import { createWithApollo } from '../utils/withApollo';
 
-interface RegisterProps {}
-
-const Register: NextPage<RegisterProps> = () => {
+const Register = () => {
   const [register] = useRegisterMutation();
   const router = useRouter();
   return (

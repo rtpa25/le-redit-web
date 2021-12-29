@@ -1,19 +1,13 @@
 /** @format */
 
 import { Button, Flex, Stack, Text } from '@chakra-ui/react';
-import type { NextPage } from 'next';
 import NextLink from 'next/link';
 import Layout from '../components/Layout';
 import Post from '../components/Post';
 import { useMeQuery, usePostsQuery } from '../generated/graphql';
 import { createWithApollo } from '../utils/withApollo';
 
-const Home: NextPage = () => {
-  interface Var {
-    limit: number;
-    cursor: number | undefined;
-  }
-
+const Home = () => {
   const { data, loading, error, fetchMore, variables } = usePostsQuery({
     variables: { limit: 10, cursor: undefined },
     notifyOnNetworkStatusChange: true,

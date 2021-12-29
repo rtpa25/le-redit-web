@@ -2,7 +2,6 @@
 
 import { Box, Button, Flex, Link } from '@chakra-ui/react';
 import { Form, Formik } from 'formik';
-import { NextPage } from 'next';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
@@ -17,9 +16,7 @@ import {
 import { toErrorMar } from '../../utils/toErrorMap';
 import { createWithApollo } from '../../utils/withApollo';
 
-interface ChangePasswordProps {}
-
-const ChangePassword: NextPage<ChangePasswordProps> = () => {
+const ChangePassword = () => {
   const [changePassword] = useChangePasswordMutation();
   const router = useRouter();
   const [tokenError, setTokenError] = useState<string>('');
