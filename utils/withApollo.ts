@@ -4,16 +4,21 @@ import { ApolloClient, InMemoryCache } from '@apollo/client';
 import withApollo from './createWithApollo';
 import { PaginatedPosts } from '../generated/graphql';
 import { NextPageContext } from 'next';
+import { isServer } from './isServer';
 
-const createClient = (ctx: NextPageContext) =>
-  new ApolloClient({
+const createClient = (ctx: NextPageContext) => {
+  let cookie = '';
+  if (isServer()) {
+    cookie = ctx?.req?.headers?.cookie as string;
+  }
+  return new ApolloClient({
     uri: 'https://api.etherapp.social/graphql',
     credentials: 'include',
-    headers: {
-      cookie:
-        (typeof window === 'undefined' ? ctx.req?.headers.cookie : undefined) ||
-        '',
-    },
+    headers: cookie
+      ? {
+          cookie,
+        }
+      : undefined,
     cache: new InMemoryCache({
       typePolicies: {
         Query: {
@@ -35,4 +40,5 @@ const createClient = (ctx: NextPageContext) =>
       },
     }),
   });
+};
 export const createWithApollo = withApollo(createClient as any);
