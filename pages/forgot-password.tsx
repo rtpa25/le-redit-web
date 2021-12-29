@@ -2,6 +2,7 @@
 
 import { Box, Button, Flex, Link } from '@chakra-ui/react';
 import { Form, Formik } from 'formik';
+import { NextPage } from 'next';
 import NextLink from 'next/link';
 import React, { useState } from 'react';
 import InputField from '../components/InputField';
@@ -11,7 +12,7 @@ import { createWithApollo } from '../utils/withApollo';
 
 interface ForgotPasswordProps {}
 
-const ForgotPassword: React.FC<ForgotPasswordProps> = () => {
+const ForgotPassword: NextPage<ForgotPasswordProps> = () => {
   const [complete, setComplete] = useState<boolean>(false);
   const [forgotPassword] = useForgotPasswordMutation();
   return (

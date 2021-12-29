@@ -2,6 +2,7 @@
 
 import { Box, Button, Flex, Link } from '@chakra-ui/react';
 import { Form, Formik } from 'formik';
+import { NextPage } from 'next';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import InputField from '../components/InputField';
@@ -17,7 +18,7 @@ import { createWithApollo } from '../utils/withApollo';
 
 interface LoginProps {}
 
-const Login: React.FC<LoginProps> = () => {
+const Login: NextPage<LoginProps> = () => {
   const [login] = useLoginMutation();
   const router = useRouter();
 

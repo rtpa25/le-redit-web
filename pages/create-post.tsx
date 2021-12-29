@@ -2,6 +2,7 @@
 
 import { Box, Button, Flex, Link } from '@chakra-ui/react';
 import { Form, Formik } from 'formik';
+import { NextPage } from 'next';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import InputField from '../components/InputField';
@@ -12,7 +13,7 @@ import { createWithApollo } from '../utils/withApollo';
 
 interface CreatePostArgs {}
 
-const CreatePost: React.FC<CreatePostArgs> = () => {
+const CreatePost: NextPage<CreatePostArgs> = () => {
   const router = useRouter();
   useIsAuth();
   const [createPost] = useCreatePostMutation();

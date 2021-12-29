@@ -16,7 +16,7 @@ import { createWithApollo } from '../utils/withApollo';
 
 interface RegisterProps {}
 
-const Register: React.FC<RegisterProps> = () => {
+const Register: NextPage<RegisterProps> = () => {
   const [register] = useRegisterMutation();
   const router = useRouter();
   return (
