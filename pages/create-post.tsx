@@ -1,36 +1,44 @@
 /** @format */
 
-import { Box, Flex, Button, Link } from '@chakra-ui/react';
-import { Formik, Form } from 'formik';
+import { Box, Button, Flex, Link } from '@chakra-ui/react';
+import { Form, Formik } from 'formik';
 import NextLink from 'next/link';
-import InputField from '../components/InputField';
-import { useCreatePostMutation, useMeQuery } from '../generated/graphql';
 import { useRouter } from 'next/router';
-import { withUrqlClient } from 'next-urql';
-import { createUrqlClient } from '../utils/createUrqlCleint';
+import InputField from '../components/InputField';
 import Layout from '../components/Layout';
+import { useCreatePostMutation } from '../generated/graphql';
 import { useIsAuth } from '../utils/useIsAuth';
+import { createWithApollo } from '../utils/withApollo';
 
 interface CreatePostArgs {}
 
 const CreatePost: React.FC<CreatePostArgs> = () => {
   const router = useRouter();
   useIsAuth();
-  const [{}, createPost] = useCreatePostMutation();
+  const [createPost] = useCreatePostMutation();
   return (
     <Layout variant='small'>
       <Formik
         initialValues={{ title: '', text: '' }}
         onSubmit={async (value, { setErrors }) => {
           console.log(value);
-          const { error } = await createPost(value);
-          if (error?.message.includes('Please write a valid post')) {
+          const { errors } = await createPost({
+            variables: value,
+            update: (cache) => {
+              cache.evict({ fieldName: 'posts' });
+            },
+          });
+          if (
+            errors?.forEach((error) => {
+              error.message === 'Please write a valid post';
+            })
+          ) {
             setErrors({
               title: 'Please write a valid post',
               text: 'Please write a valid post',
             });
           }
-          if (!error) {
+          if (!errors) {
             router.push('/');
           }
         }}>
@@ -71,4 +79,4 @@ const CreatePost: React.FC<CreatePostArgs> = () => {
   );
 };
 
-export default withUrqlClient(createUrqlClient)(CreatePost);
+export default createWithApollo({ ssr: false })(CreatePost);

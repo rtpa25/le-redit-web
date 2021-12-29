@@ -2,7 +2,6 @@
 
 import { Box, Button, Flex, Link } from '@chakra-ui/react';
 import { Form, Formik } from 'formik';
-import { withUrqlClient } from 'next-urql';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import React from 'react';
@@ -12,8 +11,8 @@ import {
   usePostQuery,
   useUpdatePostMutation,
 } from '../../../generated/graphql';
-import { createUrqlClient } from '../../../utils/createUrqlCleint';
 import { useIsAuth } from '../../../utils/useIsAuth';
+import { createWithApollo } from '../../../utils/withApollo';
 
 interface EditPostProps {}
 
@@ -22,30 +21,32 @@ const EditPost: React.FC<EditPostProps> = ({}) => {
   useIsAuth();
   const intId = typeof router.query.id === 'string' ? router.query.id : -1;
 
-  const [{ data }] = usePostQuery({
-    pause: intId === -1,
+  const { data } = usePostQuery({
+    skip: intId === -1,
     variables: {
       id: router.query.id as string,
     },
   });
-  const [{}, updatePost] = useUpdatePostMutation();
+  const [updatePost] = useUpdatePostMutation();
   return (
     <Layout variant='small'>
       <Formik
         initialValues={{ title: data?.post?.title, text: data?.post?.text }}
         onSubmit={async (value, { setErrors }) => {
           console.log(value);
-          const { error } = await updatePost({
-            title: value.title,
-            text: value.text,
-            id: router.query.id as string,
+          const { errors } = await updatePost({
+            variables: {
+              title: value.title,
+              text: value.text,
+              id: router.query.id as string,
+            },
           });
-          if (error) {
+          if (errors) {
             setErrors({
               title: 'something went wrong',
             });
           }
-          if (!error) {
+          if (!errors) {
             router.back();
           }
         }}>
@@ -86,4 +87,4 @@ const EditPost: React.FC<EditPostProps> = ({}) => {
   );
 };
 
-export default withUrqlClient(createUrqlClient, { ssr: true })(EditPost);
+export default createWithApollo({ ssr: false })(EditPost);

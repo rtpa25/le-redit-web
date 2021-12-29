@@ -1,45 +1,46 @@
 /** @format */
 
-import { withUrqlClient } from 'next-urql';
-import React, { useState } from 'react';
-import { createUrqlClient } from '../../utils/createUrqlCleint';
+import {
+  DeleteIcon,
+  EditIcon,
+  TriangleDownIcon,
+  TriangleUpIcon,
+} from '@chakra-ui/icons';
+import { Box, Flex, Heading, IconButton } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
+import React, { useState } from 'react';
+import Layout from '../../components/Layout';
 import {
   useMeQuery,
   usePostDeleteMutation,
   usePostQuery,
   useVoteMutation,
 } from '../../generated/graphql';
-import Layout from '../../components/Layout';
-import { Box, Flex, Heading, IconButton } from '@chakra-ui/react';
-import {
-  TriangleUpIcon,
-  TriangleDownIcon,
-  DeleteIcon,
-  EditIcon,
-} from '@chakra-ui/icons';
+import { createWithApollo } from '../../utils/withApollo';
 
 interface PostPageProps {}
 
 const PostPage: React.FC<PostPageProps> = () => {
   const router = useRouter();
-  const [{ data: _data, fetching: _fetching }] = useMeQuery();
+
+  const { data: _data, loading: _fetching } = useMeQuery();
+
   const intId = typeof router.query.id === 'string' ? router.query.id : -1;
+
   //loading state for voting
   const [loadingState, setLoadingState] = useState<
     'upLoading' | 'downLoading' | 'notLoading'
   >('notLoading');
 
-  const [{}, vote] = useVoteMutation();
-  const [{ data, fetching }] = usePostQuery({
-    pause: intId === -1,
+  const [vote] = useVoteMutation();
+  const { data, loading } = usePostQuery({
+    skip: intId === -1,
     variables: {
       id: router.query.id as string,
     },
   });
-  const [{ fetching: _deletePostLoading }, deletePost] =
-    usePostDeleteMutation();
-  if (fetching) {
+  const [deletePost, { loading: _deletePostLoading }] = usePostDeleteMutation();
+  if (loading) {
     return <Layout>Loading...</Layout>;
   }
 
@@ -109,10 +110,7 @@ const PostPage: React.FC<PostPageProps> = () => {
                     return;
                   }
                   setLoadingState('upLoading');
-                  await vote({
-                    postId: router.query.id as string,
-                    value: 1,
-                  });
+                  await vote({});
                   setLoadingState('notLoading');
                 }}
               />
@@ -131,8 +129,10 @@ const PostPage: React.FC<PostPageProps> = () => {
                   }
                   setLoadingState('upLoading');
                   await vote({
-                    postId: router.query.id as string,
-                    value: -1,
+                    variables: {
+                      postId: router.query.id as string,
+                      value: -1,
+                    },
                   });
                   setLoadingState('notLoading');
                 }}
@@ -148,7 +148,13 @@ const PostPage: React.FC<PostPageProps> = () => {
                 cursor={'pointer'}
                 onClick={async () => {
                   await deletePost({
-                    id: router.query.id as string,
+                    variables: { id: router.query.id as string },
+                    //evict it from the cache
+                    update: (cache) => {
+                      cache.evict({
+                        id: ('Post:' + router.query.id) as string,
+                      });
+                    },
                   });
                   router.replace('/');
                 }}
@@ -161,4 +167,4 @@ const PostPage: React.FC<PostPageProps> = () => {
   );
 };
 
-export default withUrqlClient(createUrqlClient, { ssr: true })(PostPage);
+export default createWithApollo({ ssr: true })(PostPage);

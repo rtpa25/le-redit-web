@@ -1,6 +1,7 @@
 /** @format */
 
-import { Box, Button, Flex, Text, Link } from '@chakra-ui/react';
+import { useApolloClient } from '@apollo/client';
+import { Box, Button, Flex, Link, Text } from '@chakra-ui/react';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import React from 'react';
@@ -13,13 +14,14 @@ const Navbar: React.FC<NavbarProps> = () => {
   const router = useRouter();
 
   //does not run the hook in case of server side rendering
-  const [{ data, fetching }] = useMeQuery({
-    pause: isServer(),
+  const { data, loading } = useMeQuery({
+    skip: isServer(),
   });
-  const [{ fetching: logoutFethcing }, logout] = useLogoutMutation();
+  const [logout, { loading: logoutFethcing }] = useLogoutMutation();
+  const apollo = useApolloClient();
   let body = null;
   //data is loading
-  if (fetching) {
+  if (loading) {
     //user not logged in
   } else if (!data?.me) {
     body = (
@@ -48,7 +50,7 @@ const Navbar: React.FC<NavbarProps> = () => {
           isLoading={logoutFethcing}
           onClick={async () => {
             await logout();
-            window.location.reload();
+            await apollo.resetStore();
           }}>
           logout
         </Button>

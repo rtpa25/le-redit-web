@@ -1,10 +1,14 @@
 /** @format */
 
-import { TriangleUpIcon, TriangleDownIcon } from '@chakra-ui/icons';
+import { TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
 import { Box, Button, Flex, Heading, IconButton, Text } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { useUnvoteMutation, useVoteMutation } from '../generated/graphql';
+import {
+  updateAfterUnvote,
+  updateAfterVote,
+} from '../utils/updateCacheAfterVoteWithApollo';
 
 interface PostProps {
   title: string;
@@ -29,10 +33,10 @@ const Post: React.FC<PostProps> = ({
   >('notLoading');
   //loading state for unvoting
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [{}, vote] = useVoteMutation();
-
+  const [vote] = useVoteMutation();
   const router = useRouter();
-  const [{}, unvote] = useUnvoteMutation();
+  const [unvote] = useUnvoteMutation();
+
   return (
     <Box
       p={5}
@@ -62,8 +66,13 @@ const Post: React.FC<PostProps> = ({
               }
               setLoadingState('upLoading');
               await vote({
-                postId: id,
-                value: 1,
+                variables: {
+                  postId: id,
+                  value: 1,
+                },
+                update: (cache) => {
+                  updateAfterVote(1, parseInt(id), cache);
+                },
               });
               setLoadingState('notLoading');
             }}
@@ -83,8 +92,13 @@ const Post: React.FC<PostProps> = ({
               }
               setLoadingState('upLoading');
               await vote({
-                postId: id,
-                value: -1,
+                variables: {
+                  postId: id,
+                  value: -1,
+                },
+                update: (cache) => {
+                  updateAfterVote(-1, parseInt(id), cache);
+                },
               });
               setLoadingState('notLoading');
             }}
@@ -106,7 +120,12 @@ const Post: React.FC<PostProps> = ({
               onClick={async () => {
                 setIsLoading(true);
                 await unvote({
-                  postId: id,
+                  variables: {
+                    postId: id,
+                  },
+                  update: (cache) => {
+                    updateAfterUnvote(parseInt(id), cache);
+                  },
                 });
                 setIsLoading(false);
               }}>

@@ -1,26 +1,42 @@
 /** @format */
 
-import { Formik, Form } from 'formik';
 import { Box, Button, Flex, Link } from '@chakra-ui/react';
-import Wrapper from '../components/Wrapper';
-import InputField from '../components/InputField';
-import { FieldError, useRegisterMutation } from '../generated/graphql';
-import { toErrorMar } from '../utils/toErrorMap';
+import { Form, Formik } from 'formik';
 import { useRouter } from 'next/router';
-import { withUrqlClient } from 'next-urql';
-import { createUrqlClient } from '../utils/createUrqlCleint';
+import InputField from '../components/InputField';
+import Wrapper from '../components/Wrapper';
+import {
+  FieldError,
+  MeDocument,
+  MeQuery,
+  useRegisterMutation,
+} from '../generated/graphql';
+import { toErrorMar } from '../utils/toErrorMap';
+import { createWithApollo } from '../utils/withApollo';
 
 interface RegisterProps {}
 
 const Register: React.FC<RegisterProps> = () => {
-  const [{}, register] = useRegisterMutation();
+  const [register] = useRegisterMutation();
   const router = useRouter();
   return (
     <Wrapper>
       <Formik
         initialValues={{ username: '', password: '', email: '' }}
         onSubmit={async (value, { setErrors }) => {
-          const response = await register(value);
+          const response = await register({
+            variables: value,
+            update: (cache, { data }) => {
+              cache.writeQuery<MeQuery>({
+                query: MeDocument,
+                data: {
+                  __typename: 'Query',
+                  me: data?.register?.user,
+                },
+              });
+              cache.evict({ fieldName: 'posts' });
+            },
+          });
           if (response.data?.register?.errors) {
             setErrors(
               toErrorMar(response.data.register.errors as FieldError[])
@@ -72,4 +88,4 @@ const Register: React.FC<RegisterProps> = () => {
   );
 };
 
-export default withUrqlClient(createUrqlClient)(Register);
+export default createWithApollo({ ssr: false })(Register);

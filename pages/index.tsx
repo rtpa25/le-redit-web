@@ -1,14 +1,12 @@
 /** @format */
 
+import { Button, Flex, Stack, Text } from '@chakra-ui/react';
 import type { NextPage } from 'next';
-import { withUrqlClient } from 'next-urql';
-import { createUrqlClient } from '../utils/createUrqlCleint';
-import { useMeQuery, usePostsQuery } from '../generated/graphql';
-import Layout from '../components/Layout';
 import NextLink from 'next/link';
-import { Button, Flex, Text, Stack } from '@chakra-ui/react';
-import { useState } from 'react';
+import Layout from '../components/Layout';
 import Post from '../components/Post';
+import { useMeQuery, usePostsQuery } from '../generated/graphql';
+import { createWithApollo } from '../utils/withApollo';
 
 const Home: NextPage = () => {
   interface Var {
@@ -16,14 +14,15 @@ const Home: NextPage = () => {
     cursor: number | undefined;
   }
 
-  const [vars, setVars] = useState<Var>({ limit: 10, cursor: undefined });
-  const [{ data, fetching, error }] = usePostsQuery({
-    variables: vars,
+  const { data, loading, error, fetchMore, variables } = usePostsQuery({
+    variables: { limit: 10, cursor: undefined },
+    notifyOnNetworkStatusChange: true,
   });
-  const [{ data: _data, fetching: _fetching }] = useMeQuery();
-  if (!fetching && !data) {
+  const { data: _data, loading: _fetching } = useMeQuery();
+  if (!loading && !data) {
     return <div>{error?.message}</div>;
   }
+  console.log(loading);
 
   return (
     <Layout variant='regular'>
@@ -51,7 +50,7 @@ const Home: NextPage = () => {
           </Button>
         </NextLink>
       </Flex>
-      {!data && fetching ? (
+      {!data && loading ? (
         <div>Loading....</div>
       ) : (
         <Stack spacing={8}>
@@ -76,14 +75,18 @@ const Home: NextPage = () => {
         <Flex justifyContent={'center'}>
           <Button
             onClick={() => {
-              setVars({
-                limit: vars.limit,
-                cursor: parseInt(
-                  data!.posts!.posts![(data.posts?.posts!.length as number) - 1]
-                    ?.id as string
-                ),
+              fetchMore({
+                variables: {
+                  limit: variables?.limit,
+                  cursor: parseInt(
+                    data!.posts!.posts![
+                      (data.posts?.posts!.length as number) - 1
+                    ]?.id as string
+                  ),
+                },
               });
             }}
+            isLoading={loading}
             mt={10}
             mb={10}>
             Load More
@@ -94,4 +97,4 @@ const Home: NextPage = () => {
   );
 };
 
-export default withUrqlClient(createUrqlClient, { ssr: true })(Home);
+export default createWithApollo({ ssr: true })(Home);
