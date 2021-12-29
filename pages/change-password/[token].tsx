@@ -88,4 +88,4 @@ const ChangePassword = () => {
   );
 };
 
-export default createWithApollo({ ssr: false })(ChangePassword as any);
+export default createWithApollo({ ssr: false })(ChangePassword);
