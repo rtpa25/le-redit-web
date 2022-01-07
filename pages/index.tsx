@@ -90,4 +90,4 @@ const Home = () => {
   );
 };
 
-export default createWithApollo({ ssr: true })(Home);
+export default createWithApollo({ ssr: false })(Home);

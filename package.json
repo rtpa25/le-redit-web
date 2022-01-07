@@ -5,6 +5,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "test": "npm run build && npm run start",
     "lint": "next lint",
     "gen": "graphql-codegen --config codegen.yml"
   },
