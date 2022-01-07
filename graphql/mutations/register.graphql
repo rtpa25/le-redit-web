@@ -1,9 +1,0 @@
-# @format
-
-mutation Register($username: String!, $password: String!, $email: String!) {
-  register(
-    options: { username: $username, password: $password, email: $email }
-  ) {
-    ...RegularUserResponse
-  }
-}

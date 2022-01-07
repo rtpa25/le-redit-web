@@ -9,71 +9,79 @@ import Layout from '../components/Layout';
 import { useCreatePostMutation } from '../generated/graphql';
 import { useIsAuth } from '../utils/useIsAuth';
 import { createWithApollo } from '../utils/withApollo';
+import dynamic from 'next/dynamic';
+import EmailPassword from 'supertokens-auth-react/recipe/emailpassword';
+
+const EmailPasswordAuthNoSSR = dynamic(
+  new Promise((res) => res(EmailPassword.EmailPasswordAuth)) as any,
+  { ssr: false }
+);
 
 const CreatePost = () => {
   const router = useRouter();
   useIsAuth();
   const [createPost] = useCreatePostMutation();
   return (
-    <Layout variant='small'>
-      <Formik
-        initialValues={{ title: '', text: '' }}
-        onSubmit={async (value, { setErrors }) => {
-          console.log(value);
-          const { errors } = await createPost({
-            variables: value,
-            update: (cache) => {
-              cache.evict({ fieldName: 'posts' });
-            },
-          });
-          if (
-            errors?.forEach((error) => {
-              error.message === 'Please write a valid post';
-            })
-          ) {
-            setErrors({
-              title: 'Please write a valid post',
-              text: 'Please write a valid post',
+    <EmailPasswordAuthNoSSR>
+      <Layout variant='small'>
+        <Formik
+          initialValues={{ title: '', text: '' }}
+          onSubmit={async (value, { setErrors }) => {
+            const { errors } = await createPost({
+              variables: value,
+              update: (cache) => {
+                cache.evict({ fieldName: 'posts' }); //this simply means you are re-fetching posts
+              },
             });
-          }
-          if (!errors) {
-            router.push('/');
-          }
-        }}>
-        {({ isSubmitting }) => (
-          <Form>
-            <InputField
-              name={'title'}
-              placeholder={'title'}
-              label={'Title'}
-              kind={'text'}
-            />
-            <Box mt={4}>
+            if (
+              errors?.forEach((error) => {
+                error.message === 'Please write a valid post';
+              })
+            ) {
+              setErrors({
+                title: 'Please write a valid post',
+                text: 'Please write a valid post',
+              });
+            }
+            if (!errors) {
+              router.push('/');
+            }
+          }}>
+          {({ isSubmitting }) => (
+            <Form>
               <InputField
-                name={'text'}
-                placeholder={'Text...'}
-                label={'Body'}
-                type={'text'}
+                name={'title'}
+                placeholder={'title'}
+                label={'Title'}
                 kind={'text'}
-                isTextArea={true}
               />
-            </Box>
-            <Flex alignItems={'flex-end'} justifyContent={'space-between'}>
-              <Button
-                mt={4}
-                type='submit'
-                isLoading={isSubmitting}
-                colorScheme='teal'>
-                Create Post
-              </Button>
-              <NextLink href={'/'}>
-                <Link>Back to home</Link>
-              </NextLink>
-            </Flex>
-          </Form>
-        )}
-      </Formik>
-    </Layout>
+              <Box mt={4}>
+                <InputField
+                  name={'text'}
+                  placeholder={'Text...'}
+                  label={'Body'}
+                  type={'text'}
+                  kind={'text'}
+                  isTextArea={true}
+                />
+              </Box>
+              <Flex alignItems={'flex-end'} justifyContent={'space-between'}>
+                <Button
+                  mt={4}
+                  type='submit'
+                  isLoading={isSubmitting}
+                  colorScheme='teal'>
+                  Create Post
+                </Button>
+                <NextLink href={'/'}>
+                  <Link>Back to home</Link>
+                </NextLink>
+              </Flex>
+            </Form>
+          )}
+        </Formik>
+      </Layout>
+    </EmailPasswordAuthNoSSR>
   );
 };
 

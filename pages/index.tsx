@@ -16,7 +16,6 @@ const Home = () => {
   if (!loading && !data) {
     return <div>{error?.message}</div>;
   }
-  console.log(loading);
 
   return (
     <Layout variant='regular'>
@@ -76,7 +75,7 @@ const Home = () => {
                     data!.posts!.posts![
                       (data.posts?.posts!.length as number) - 1
                     ]?.id as string
-                  ),
+                  ), //setting to the id of the last item in the cached list
                 },
               });
             }}
