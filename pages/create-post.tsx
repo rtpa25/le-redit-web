@@ -13,7 +13,7 @@ import dynamic from 'next/dynamic';
 import EmailPassword from 'supertokens-auth-react/recipe/emailpassword';
 
 const EmailPasswordAuthNoSSR = dynamic(
-  new Promise((res) => res(EmailPassword.EmailPasswordAuth)),
+  new Promise((res) => res(EmailPassword.EmailPasswordAuth)) as any,
   { ssr: false }
 );
 

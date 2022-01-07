@@ -6,7 +6,7 @@ import SuperTokens from 'supertokens-auth-react';
 import { redirectToAuth } from 'supertokens-auth-react/recipe/emailpassword';
 
 const SuperTokensComponentNoSSR = dynamic(
-  new Promise((res) => res(SuperTokens.getRoutingComponent)),
+  new Promise((res) => res(SuperTokens.getRoutingComponent)) as any,
   { ssr: false }
 );
 

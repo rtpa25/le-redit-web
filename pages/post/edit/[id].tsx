@@ -17,7 +17,7 @@ import { useIsAuth } from '../../../utils/useIsAuth';
 import { createWithApollo } from '../../../utils/withApollo';
 
 const EmailPasswordAuthNoSSR = dynamic(
-  new Promise((res) => res(EmailPassword.EmailPasswordAuth)),
+  new Promise((res) => res(EmailPassword.EmailPasswordAuth)) as any,
   { ssr: false }
 );
 
