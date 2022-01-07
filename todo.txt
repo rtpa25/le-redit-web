@@ -4,6 +4,6 @@
 ✔ then add the authorization and authentication checks to the resolvers @done (6/1/2022, 8:41:12 pm)
 ✔ clean up all the mutaions that are irrelevant @done (7/1/2022, 9:22:11 am)
 ✔ pass the session object via the context @done (7/1/2022, 10:36:00 am)
-☐ Check if all the queries and mutations are working while updating their authorization and authentication
-☐ do the same with the frontend clear up the hooks and pages that are not required any more
-☐ protect the pages on the frontend
+✔ Check if all the queries and mutations are working while updating their authorization and authentication @done (7/1/2022, 10:51:11 am)
+✔ do the same with the frontend clear up the hooks and pages that are not required any more @done (7/1/2022, 10:51:18 am)
+✔ protect the pages on the frontend @done (7/1/2022, 10:51:20 am)
