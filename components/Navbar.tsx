@@ -24,8 +24,6 @@ const Navbar: React.FC<NavbarProps> = () => {
   if (loading) {
     //user not logged in
   } else if (!data?.me) {
-    console.log(data);
-
     body = (
       <>
         <NextLink href={'/auth'}>
