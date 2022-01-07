@@ -2,9 +2,11 @@
 
 import { Box, Button, Flex, Link } from '@chakra-ui/react';
 import { Form, Formik } from 'formik';
+import dynamic from 'next/dynamic';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import React from 'react';
+import EmailPassword from 'supertokens-auth-react/recipe/emailpassword';
 import InputField from '../../../components/InputField';
 import Layout from '../../../components/Layout';
 import {
@@ -13,6 +15,11 @@ import {
 } from '../../../generated/graphql';
 import { useIsAuth } from '../../../utils/useIsAuth';
 import { createWithApollo } from '../../../utils/withApollo';
+
+const EmailPasswordAuthNoSSR = dynamic(
+  new Promise((res) => res(EmailPassword.EmailPasswordAuth)),
+  { ssr: false }
+);
 
 const EditPost = ({}) => {
   const router = useRouter();
@@ -27,61 +34,63 @@ const EditPost = ({}) => {
   });
   const [updatePost] = useUpdatePostMutation();
   return (
-    <Layout variant='small'>
-      <Formik
-        initialValues={{ title: data?.post?.title, text: data?.post?.text }}
-        onSubmit={async (value, { setErrors }) => {
-          console.log(value);
-          const { errors } = await updatePost({
-            variables: {
-              title: value.title,
-              text: value.text,
-              id: router.query.id as string,
-            },
-          });
-          if (errors) {
-            setErrors({
-              title: 'something went wrong',
+    <EmailPasswordAuthNoSSR>
+      <Layout variant='small'>
+        <Formik
+          initialValues={{ title: data?.post?.title, text: data?.post?.text }}
+          onSubmit={async (value, { setErrors }) => {
+            console.log(value);
+            const { errors } = await updatePost({
+              variables: {
+                title: value.title,
+                text: value.text,
+                id: router.query.id as string,
+              },
             });
-          }
-          if (!errors) {
-            router.back();
-          }
-        }}>
-        {({ isSubmitting }) => (
-          <Form>
-            <InputField
-              name={'title'}
-              placeholder={data?.post?.title as string}
-              label={'Title'}
-              kind={'text'}
-            />
-            <Box mt={4}>
+            if (errors) {
+              setErrors({
+                title: 'something went wrong',
+              });
+            }
+            if (!errors) {
+              router.back();
+            }
+          }}>
+          {({ isSubmitting }) => (
+            <Form>
               <InputField
-                name={'text'}
-                placeholder={data?.post?.text as string}
-                label={'Body'}
-                type={'text'}
+                name={'title'}
+                placeholder={data?.post?.title as string}
+                label={'Title'}
                 kind={'text'}
-                isTextArea={true}
               />
-            </Box>
-            <Flex alignItems={'flex-end'} justifyContent={'space-between'}>
-              <Button
-                mt={4}
-                type='submit'
-                isLoading={isSubmitting}
-                colorScheme='teal'>
-                Edit Post
-              </Button>
-              <NextLink href={'/'}>
-                <Link>Back to home</Link>
-              </NextLink>
-            </Flex>
-          </Form>
-        )}
-      </Formik>
-    </Layout>
+              <Box mt={4}>
+                <InputField
+                  name={'text'}
+                  placeholder={data?.post?.text as string}
+                  label={'Body'}
+                  type={'text'}
+                  kind={'text'}
+                  isTextArea={true}
+                />
+              </Box>
+              <Flex alignItems={'flex-end'} justifyContent={'space-between'}>
+                <Button
+                  mt={4}
+                  type='submit'
+                  isLoading={isSubmitting}
+                  colorScheme='teal'>
+                  Edit Post
+                </Button>
+                <NextLink href={'/'}>
+                  <Link>Back to home</Link>
+                </NextLink>
+              </Flex>
+            </Form>
+          )}
+        </Formik>
+      </Layout>
+    </EmailPasswordAuthNoSSR>
   );
 };
 

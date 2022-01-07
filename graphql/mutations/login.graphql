@@ -1,7 +1,0 @@
-# @format
-
-mutation Login($username: String!, $password: String!) {
-  login(options: { username: $username, password: $password }) {
-    ...RegularUserResponse
-  }
-}

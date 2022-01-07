@@ -4,34 +4,36 @@ import { useApolloClient } from '@apollo/client';
 import { Box, Button, Flex, Link, Text } from '@chakra-ui/react';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
-import React from 'react';
-import { useLogoutMutation, useMeQuery } from '../generated/graphql';
+import { useState } from 'react';
+import { useMeQuery } from '../generated/graphql';
 import { isServer } from '../utils/isServer';
+import { signOut } from 'supertokens-auth-react/recipe/emailpassword';
 
 interface NavbarProps {}
 
 const Navbar: React.FC<NavbarProps> = () => {
   const router = useRouter();
-
+  const [logoutLoading, setLogoutLoading] = useState(false);
   //does not run the hook in case of server side rendering
   const { data, loading } = useMeQuery({
     skip: isServer(),
   });
-  const [logout, { loading: logoutFethcing }] = useLogoutMutation();
   const apollo = useApolloClient();
   let body = null;
   //data is loading
   if (loading) {
     //user not logged in
   } else if (!data?.me) {
+    console.log(data);
+
     body = (
       <>
-        <NextLink href={'/login'}>
+        <NextLink href={'/auth'}>
           <Link color={'white'} mr={4}>
             Login
           </Link>
         </NextLink>
-        <NextLink href={'/register'}>
+        <NextLink href={'/auth'}>
           <Link color={'white'}>Register</Link>
         </NextLink>
       </>
@@ -47,9 +49,11 @@ const Navbar: React.FC<NavbarProps> = () => {
           ml={4}
           color={'white'}
           variant={'link'}
-          isLoading={logoutFethcing}
+          isLoading={logoutLoading}
           onClick={async () => {
-            await logout();
+            setLogoutLoading(true);
+            await signOut();
+            setLogoutLoading(false);
             await apollo.resetStore();
           }}>
           logout
